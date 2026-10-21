@@ -49,7 +49,7 @@ public class MinPerimeterTester {
                 pts.add(new Point2D.Double(x, y));
             }
 
-            System.out.println(minPerimeterFinder.minPerimeter(pts));
+            System.out.printf("%.3f%n", minPerimeterFinder.minPerimeter(pts));
         }
 
     }
