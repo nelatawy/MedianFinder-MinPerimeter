@@ -62,7 +62,9 @@ public class MinPerimeterFinder {
             return Double.MAX_VALUE; // heavily penalized result (can't form a triangle)
         }
 
-        double medianEleX = pointsX.get(pointsX.size()/2).getX();
+        Point2D medianEle = pointsX.get(pointsX.size()/2);
+
+
 
         // preparing the arguments for left/right recursive calls
         List<Point2D> pointsXleft = new ArrayList<>(pointsX.subList(0, pointsX.size()/2)); //from 0 to medianIdx - 1
@@ -72,9 +74,17 @@ public class MinPerimeterFinder {
         List<Point2D> pointsYleft = new ArrayList<>();
         List<Point2D> pointsYright = new ArrayList<>();
         for (Point2D d : pointsY) {
-            if (d.getX() < medianEleX) {
+            if (d.getX() < medianEle.getX()) {
                 pointsYleft.add(d);
-            } else {
+            } else if (d.getX() == medianEle.getX()) {
+                //to account for tie breaking and making sure it doesn't break with many values equal on X
+                if (d.getY() < medianEle.getY()) {
+                    pointsYleft.add(d);
+                } else {
+                    pointsYright.add(d);
+                }
+            }
+            else {
                 pointsYright.add(d);
             }
         }
@@ -87,7 +97,7 @@ public class MinPerimeterFinder {
 
         //we collect all candidate points around the crossing line
         double stripWidth = minFound/2;
-        List<Point2D> crossingSegmentPts = getPointsAroundSep(pointsY, medianEleX, stripWidth);
+        List<Point2D> crossingSegmentPts = getPointsAroundSep(pointsY, medianEle.getX(), stripWidth);
 
         // check all candidate triplets O(n*(limit^2)) -> O(n)
         int checkCntLimit = 15; //how many elements after a point do we compare it with.
@@ -99,7 +109,9 @@ public class MinPerimeterFinder {
         List<Point2D> pointsX = new ArrayList<>(points);
         List<Point2D> pointsY = new ArrayList<>(points);
 
-        pointsX.sort(Comparator.comparingDouble(Point2D::getX));
+        pointsX.sort(Comparator.comparingDouble(Point2D::getX)
+                .thenComparingDouble(Point2D::getY));
+
         pointsY.sort(Comparator.comparingDouble(Point2D::getY));
         return minPerimeterHelper(pointsX, pointsY);
     }
